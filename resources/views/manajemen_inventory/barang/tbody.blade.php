@@ -18,8 +18,8 @@
   <td>{{ $row->nama }}</td>
   <td>{{ $row->tanggal_masuk }}</td>
   <td>{{ $row->jumlah_barang }}</td>
-  <td>{{ $row->harga_beli }}</td>
-  <td>{{ $row->harga_jual }}</td>
+  <td>Rp.{{ number_format($row->harga_beli, 0,',','.') }}</td>
+  <td>Rp.{{ number_format($row->harga_jual, 0,',','.') }}</td>
   <td align="right">
     <button class="btn btn-xs btn-outline btn-info" onClick="showForm({{ $row->id }})">edit</button>
     <button class="btn btn-xs btn-outline btn-error form-delete" data-id="{{ $row->id }}" data-name="{{ $row->nama }}">delete</button>

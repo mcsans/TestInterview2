@@ -45,8 +45,11 @@
               </div>
             </div>
             <div class="flex justify-start">
-              <button type="button" class="btn btn-error text-white my-5" id="reset-keranjang">Reset Pesanan</button>
-              <button type="button" class="btn btn-success text-white my-5 ml-5" id="pembayaran">Pembayaran</button>
+              <a  href="{{ route('pesan.index') }}">
+                <button type="button" class="btn btn-warning text-white my-5">Kembali ke Pesan</button>
+              </a>
+              <button type="button" class="btn btn-error text-white my-5 mx-5" id="reset-keranjang">Reset Pesanan</button>
+              <button type="button" class="btn btn-success text-white my-5" id="pembayaran">Pembayaran</button>
             </div>
       </div>
   </div>

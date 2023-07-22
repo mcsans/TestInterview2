@@ -174,6 +174,27 @@ $('#tbody').on('click', '.form-delete', function(e){
 });
 
 // Tambahkan barang ke keranjang
+$('#tbody').on('click', '.add-to-cart', function(e){
+	var jumlahCart = parseInt($('#info-cart').data('jumlah'));
+
+  $.ajax({
+		type:'POST',
+		url: '/keranjang-pesanan',
+    data: { "_token": token, 'barang_id': $(this).data('id'), },
+		success: (data) => {
+      console.log(data);
+			if(data == "") {
+				readData();
+				sweetalert('success', 'Data added successfully');
+				$('#info-cart').html(`+${(jumlahCart+1)}`);
+				$('#info-cart').data('jumlah', (jumlahCart+1));
+			} else {
+				sweetalert('error', data);
+			}
+		}
+	});
+});
+
 $('#tambah-barang').on('change', function(e){
   $.ajax({
 		type:'POST',
@@ -235,25 +256,44 @@ $('#tbody').on('keyup', '#tunai', function(e){
 
 // reset keranjang
 $('#reset-keranjang').on('click', function(e){
-  $.post(`/${baseurl}/reset-keranjang`, { "_token": token }, function() {
-    readData();
-    sweetalert('success', 'Reset Pesanan Berhasil');
-  }); 
+	Swal.fire({
+		icon: 'warning',
+		title: 'Apakah anda yakin?',
+		text: `Keranjang belanja akan di reset.`,
+		showCancelButton: true,
+		confirmButtonText: 'Sure',
+	}).then((result) => {
+		if (result.isConfirmed) {
+			$.post(`/${baseurl}/reset-keranjang`, { "_token": token }, function() {
+				readData();
+				sweetalert('success', 'Reset Pesanan Berhasil');
+			}); 
+		}
+	})
 });
 
-// Update tunai di keranjang
+// pembayaran
 $('#pembayaran').on('click', function(e){
-  var tunai = parseInt($('#tunai').val());
-  var total = parseInt($('#total').val());
-
-  if(tunai >= total) {
-    $.post(`/${baseurl}/pembayaran`, { "_token": token, "tunai": tunai, "total": total }, function(data) {
-      readData();
-      sweetalert('success', 'Pembayaran Berhasil');
-    }); 
-  } else {
-    sweetalert('error', 'Gagal, Tunai tidak cukup');
-  }
+	Swal.fire({
+		icon: 'question',
+		title: 'Lanjutkan Pembayaran?',
+		showCancelButton: true,
+		confirmButtonText: 'Sure',
+	}).then((result) => {
+		if (result.isConfirmed) {
+			var tunai = parseInt($('#tunai').val());
+			var total = parseInt($('#total').val());
+		
+			if(tunai >= total) {
+				$.post(`/${baseurl}/pembayaran`, { "_token": token, "tunai": tunai, "total": total }, function(data) {
+					readData();
+					sweetalert('success', 'Pembayaran Berhasil');
+				}); 
+			} else {
+				sweetalert('error', 'Gagal, Tunai tidak cukup');
+			}
+		}
+	})
 });
 
 // detail transaksi
@@ -263,71 +303,3 @@ function detailTransaksi(id) {
     modal_detail.showModal();
   });
 }
-
-// =======================================================================================================================================
-
-// FORM SWITCH
-$('#tbody').on('click', '.form-switch', function(e){
-	e.preventDefault();
-	const id = $(this).data('id');
-	const name = $(this).data('name');
-
-	Swal.fire({
-		icon: 'info',
-		title: 'Are you sure?',
-		text: `Data ${name} will be deleted.`,
-		showCancelButton: true,
-		confirmButtonText: 'Sure',
-	}).then((result) => {
-		if (result.isConfirmed) {
-			$.get(`/${baseurl}/switchData`, { "_token": token, "id": id }, function() {
-				readData();
-				sweetalert('success', 'Data switch successfully');
-			}); 
-		}
-	})
-});
-
-// FORM CHANGE PASS
-$('.form-changePass').submit(function(e){
-	e.preventDefault();
-	$.ajax({
-		type:'POST',
-		url: $(this).attr('action'),
-		data: $(this).serialize(),
-		success: (data) => {
-			if(data == "") {
-				$('input[type="password"]').val("");
-				$('.form-text').html("");
-				sweetalert('success', 'Password changed successfully');
-			} else {
-				$('#showForm').html(data);
-			}
-		}
-	});
-});
-
-// RESET PASSWORD
-function resetPass(id, username) {
-	Swal.fire({
-		icon: 'warning',
-		title: 'Are you sure?',
-		text: `Password ${username} will be reset.`,
-		showCancelButton: true,
-		confirmButtonText: 'Sure',
-	}).then((result) => {
-		if (result.isConfirmed) {
-			$.post(`/${baseurl}/resetPass/${id}`, { "_token": token }, function() {
-				readData();
-				sweetalert('success', 'Password reset successfully');
-			}); 
-		}
-	})
-};
-
-// FORM LOGOUT
-$('.form-logout').click(function(){
-	$.post(`/logout`, { "_token": token }, function() {
-		sweetalert('success', 'Logout successfully');
-	});
-});
